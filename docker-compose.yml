@@ -1,0 +1,34 @@
+version: '2'
+services:
+
+  web:
+    build: .
+    ports:
+      - "127.0.0.1:8000:8000"
+    volumes:
+      - .:/code
+    depends_on:
+      - postgresdb
+
+    command: "python manage.py runserver 0.0.0.0:8000"
+    # To migrate:
+    # alembic upgrade head
+
+    env_file: .env
+    environment:
+      DATABASE_URL: postgres://postgres:nopass@postgresdb/tucit
+    working_dir: /code
+
+  # WARNING: DO NOT name this just "postgres" or it will cause things
+  # to break, for some reason.
+  postgresdb:
+    image: postgres:9.5
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: 'nopass'
+      POSTGRES_DB: 'tucit'
+    volumes:
+      - postgresdb-pgdata:/var/lib/postgresql/data
+
+volumes:
+  postgresdb-pgdata:
